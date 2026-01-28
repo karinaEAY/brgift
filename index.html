@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Steal a Brainrot</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --accent-blue: #3b82f6;
+            --accent-indigo: #6366f1;
+            --light-bg: #f8fafc;
+            --text-main: #0f172a;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: url('https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/4c3979d9-9e37-4b92-97e0-1421cf503d28/dgg35wu-5d7f59fe-6e46-4138-8d7a-0ecdc4ce5066.jpg?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7InBhdGgiOiIvZi80YzM5NzlkOS05ZTM3LTRiOTItOTdlMC0xNDIxY2Y1MDNkMjgvZGdnMzV3dS01ZDdmNTlmZS02ZTQ2LTQxMzgtOGQ3YS0wZWNkYzRjZTUwNjYuanBnIn1dXSwiYXVkIjpbInVybjpzZXJ2aWNlOmZpbGUuZG93bmxvYWQiXX0.Oq8SgtoEj4pb2-3g_3smwfVL1hdaUOr8P1neKuI9pcA') no-repeat center center fixed;
+            background-size: cover;
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Added overlay to ensure text readability on image background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.4); /* Slight white tint */
+            backdrop-filter: blur(2px);
+            z-index: -1;
+        }
+
+        /* Modern Glass UI */
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+        }
+
+        /* Gift Animation */
+        .gift-container {
+            perspective: 1000px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .gift-container:hover {
+            transform: scale(1.05);
+        }
+
+        .gift-image {
+            transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .gift-container.opened .gift-image {
+            transform: translateY(-80px) scale(0);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .reward-placeholder {
+            opacity: 0;
+            transform: scale(0.5);
+            transition: all 0.5s 0.3s ease;
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+        }
+
+        /* UPDATED: Brainrot Item Highlight Effect */
+        .brainrot-highlight {
+            filter: drop-shadow(0 0 15px rgba(255, 255, 255, 0.9)) drop-shadow(0 0 5px rgba(255, 215, 0, 0.8));
+            transform: scale(1.1);
+        }
+
+        .gift-container.opened .reward-placeholder {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        /* Refined slow fly animation */
+        @keyframes flyToBoxCenter {
+            0% { 
+                transform: translate(0, 0) scale(1); 
+                opacity: 1; 
+            }
+            80% {
+                opacity: 1;
+            }
+            100% { 
+                transform: translate(var(--tx), var(--ty)) scale(0.1); 
+                opacity: 0; 
+            }
+        }
+
+        .fly-anim {
+            animation: flyToBoxCenter 1.6s cubic-bezier(0.45, 0, 0.55, 1) forwards;
+        }
+
+        .btn-modern {
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-indigo));
+            color: white;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+            transition: all 0.3s ease;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+
+        .btn-modern:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+            filter: brightness(1.1);
+        }
+
+        .btn-modern:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        #shippingBox {
+            transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .box-pop {
+            transform: scale(1.15);
+        }
+
+        /* Ensure text pops against the background */
+        h1 {
+            text-shadow: 2px 2px 0px rgba(255,255,255,0.5);
+        }
+
+        /* Progress Bar Styles */
+        .progress-container {
+            width: 100%;
+            background-color: #e2e8f0;
+            border-radius: 9999px;
+            overflow: hidden;
+            height: 1rem;
+        }
+        
+        .progress-bar {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6, #6366f1);
+            transition: width 0.1s linear;
+        }
+
+        /* UPDATED: Center Modal Style */
+        .center-modal {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 50;
+            width: 90%;
+            max-width: 400px;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8">
+
+    <div id="app" class="max-w-4xl mx-auto relative z-10 h-full">
+        
+        <!-- STEP 1: GIFT SELECTION -->
+        <section id="step1" class="text-center py-12">
+            <h1 class="text-5xl md:text-7xl font-extrabold mb-4 tracking-tighter text-indigo-900">
+                STEAL A BRAINROT
+            </h1>
+            <p class="mb-12 text-xl font-semibold text-slate-700 bg-white/40 inline-block px-4 py-1 rounded-full backdrop-blur-sm">Select boxes to steal your exclusive items</p>
+            
+            <div class="grid grid-cols-3 gap-4 md:gap-8 mb-16" id="giftGrid">
+                <!-- Gifts will be injected here -->
+            </div>
+
+            <button id="nextBtn" class="hidden btn-modern px-14 py-5 rounded-2xl text-xl font-bold uppercase tracking-widest">
+                Collect Loot
+            </button>
+        </section>
+
+        <!-- STEP 2: ROBLOX NICKNAME + LOADING -->
+        <section id="step2" class="hidden py-8">
+            <div class="glass-panel p-8 md:p-12 rounded-[2rem] max-w-xl mx-auto border border-white/50">
+                <h2 class="text-3xl font-bold mb-8 text-center text-slate-800">Link Account</h2>
+                
+                <div class="space-y-5 mb-8">
+                    <div>
+                        <label class="block text-xs uppercase tracking-widest text-slate-500 font-semibold mb-2 ml-1">Roblox Nickname</label>
+                        <input type="text" id="robloxNick" class="w-full px-5 py-4 rounded-2xl bg-white border border-slate-200 focus:border-blue-500 outline-none transition-all text-slate-900" placeholder="Enter Roblox Username">
+                    </div>
+                </div>
+
+                <!-- Loading Bar Container (Hidden initially) -->
+                <div id="loadingArea" class="hidden mb-4">
+                    <p class="text-center text-sm font-semibold text-blue-600 mb-2 uppercase tracking-wide">Connecting to server...</p>
+                    <div class="progress-container">
+                        <div id="progressBar" class="progress-bar"></div>
+                    </div>
+                </div>
+
+                <button id="confirmBtn" class="w-full btn-modern py-5 rounded-2xl text-xl font-bold uppercase tracking-widest">
+                    Confirm Claim
+                </button>
+            </div>
+        </section>
+
+        <!-- STEP 3: FINAL ANIMATION & SUCCESS -->
+        <section id="step3" class="hidden text-center relative min-h-[80vh] flex flex-col items-center">
+            <h2 id="finalTitle" class="text-4xl font-bold mb-8 text-slate-800 bg-white/50 px-6 py-2 rounded-xl backdrop-blur-sm mt-8">Processing Transfer</h2>
+            
+            <div id="rewardCollectionArea" class="w-full flex justify-center gap-6 mb-12 min-h-[160px]">
+                <!-- Rewards fly from here -->
+            </div>
+
+            <div class="relative w-64 h-64 mb-12 flex items-center justify-center">
+                <!-- UPDATED BOX IMAGE -->
+                <img src="https://devforum-uploads.s3.dualstack.us-east-2.amazonaws.com/uploads/original/5X/c/4/c/2/c4c28132e4907f73ea0430d18d769c06276e39cc.png" id="shippingBox" class="w-full h-auto z-20 drop-shadow-2xl" alt="Loot Chest">
+            </div>
+
+            <!-- SUCCESS MESSAGE (Centered Modal) -->
+            <div id="successMessage" class="center-modal hidden opacity-0 transition-all duration-1000">
+                <div class="glass-panel px-10 py-8 rounded-[2rem] border border-green-200 shadow-[0_20px_60px_rgba(0,0,0,0.3)] bg-white/95">
+                    <div class="text-6xl mb-4">✅</div>
+                    <h3 class="text-2xl md:text-3xl font-extrabold text-slate-800 mb-2">Success!</h3>
+                    <p class="text-green-600 font-bold text-lg tracking-wide uppercase">Brainrots are now on your account</p>
+                    <p class="mt-6 text-slate-400 text-xs font-mono">Transaction ID: #BRAINROT-COMPLETED</p>
+                </div>
+            </div>
+        </section>
+    </div>
+    
+    <script>
+        // Box images
+        const giftImages = [
+            "https://i.ibb.co/DDcsf7Gf/1.png",
+            "https://i.ibb.co/9Mnc77T/2.png",
+            "https://i.ibb.co/pB4sbFWt/3.png"
+        ];
+
+        // Brainrot items array
+        const phoneImages = [
+            "https://i.ibb.co/mCXtD9fw/image.png", // Rebirth
+            "https://tr.rbxcdn.com/180DAY-c6f527d699cecc70c3cd4fcb8a10a20a/420/420/LayeredAccessory/Webp/noFilter", // Trenostruzzo Turbo 4000
+            "https://tr.rbxcdn.com/180DAY-7fb245d7583be8f64431476e1bbde88c/420/420/BackAccessory/Webp/noFilter", // Trippi Troppi Troppa Trippa
+            "https://i.ibb.co/zhX2KNvj/Pakrahmamat.webp", // Pakrahmatmamat
+            "https://tr.rbxcdn.com/180DAY-31ad422d94fef00e38a5845491502ba3/420/420/BackAccessory/Webp/noFilter", // Los Tralaleritos
+            "https://tr.rbxcdn.com/180DAY-69dc73536275fb9709d6499c215247d7/420/420/BackAccessory/Webp/noFilter", // Job Job Job Sahur
+            "https://tr.rbxcdn.com/180DAY-16e6342371511a274022183e026d8a64/420/420/WaistAccessory/Webp/noFilter", // Chicleteira Bicicleteira
+            "https://i.ibb.co/kg5K9Dxq/Matteofr.webp", // Extinct Matteo
+            "https://tr.rbxcdn.com/180DAY-34641ad357b485b21f9ccfce5d94dc4c/420/420/ShoulderAccessory/Webp/noFilter", // Meowl
+            "https://tr.rbxcdn.com/180DAY-99132d9054de9d99a77b94cabac8523c/420/420/Hat/Webp/noFilter" // Admin Lucky Block
+        ];
+
+        let openedCount = 0;
+        let selectedRewards = [];
+
+        // --- GIFT GRID INITIALIZATION ---
+        function initGifts() {
+            const grid = document.getElementById('giftGrid');
+            const shuffledItems = [...phoneImages].sort(() => Math.random() - 0.5);
+            const firstRowIndices = [0, 1, 2].sort(() => Math.random() - 0.5);
+            const boxLayout = [];
+            for (let r = 0; r < 3; r++) {
+                for (let c = 0; c < 3; c++) {
+                    const typeIndex = firstRowIndices[(c + r) % 3];
+                    boxLayout.push(giftImages[typeIndex]);
+                }
+            }
+
+            for(let idx = 0; idx < 9; idx++) {
+                const itemSrc = shuffledItems[idx];
+                const boxSrc = boxLayout[idx];
+                
+                const container = document.createElement('div');
+                container.className = 'gift-container relative aspect-square flex items-center justify-center p-2';
+                // Added 'brainrot-highlight' class to image
+                container.innerHTML = `
+                    <div class="reward-placeholder">
+                        <div class="w-full h-full flex items-center justify-center p-2">
+                            <img src="${itemSrc}" class="brainrot-highlight max-w-full max-h-full object-contain" alt="Rare Item">
+                        </div>
+                    </div>
+                    <img src="${boxSrc}" class="gift-image w-full h-auto object-contain z-10" alt="Loot Box">
+                `;
+                
+                container.onclick = () => {
+                    if (!container.classList.contains('opened')) {
+                        container.classList.add('opened');
+                        openedCount++;
+                        selectedRewards.push({
+                            src: itemSrc,
+                            element: container.querySelector('.reward-placeholder')
+                        });
+                        if (openedCount >= 3) {
+                            document.getElementById('nextBtn').classList.remove('hidden');
+                        }
+                    }
+                };
+                grid.appendChild(container);
+            }
+        }
+
+        // --- LOADING BAR LOGIC ---
+        function startLoadingProcess() {
+            const btn = document.getElementById('confirmBtn');
+            const loadingArea = document.getElementById('loadingArea');
+            const progressBar = document.getElementById('progressBar');
+            const inputField = document.getElementById('robloxNick');
+
+            // Disable input and hide button
+            inputField.disabled = true;
+            btn.classList.add('hidden');
+            loadingArea.classList.remove('hidden');
+
+            let width = 0;
+            // Run progress bar for about 2.5 seconds
+            const interval = setInterval(() => {
+                if (width >= 100) {
+                    clearInterval(interval);
+                    // Wait a moment at 100% then proceed
+                    setTimeout(() => {
+                        document.getElementById('step2').classList.add('hidden');
+                        document.getElementById('step3').classList.remove('hidden');
+                        runPackingAnimation();
+                    }, 500);
+                } else {
+                    width += 1; // Increment
+                    progressBar.style.width = width + '%';
+                }
+            }, 25);
+        }
+
+        // --- PACKING ANIMATION ---
+        async function runPackingAnimation() {
+            const box = document.getElementById('shippingBox');
+            const collectionArea = document.getElementById('rewardCollectionArea');
+            
+            const rewardsToPack = selectedRewards.map(rewardObj => {
+                const reward = rewardObj.element.cloneNode(true);
+                reward.style.position = 'relative';
+                reward.style.width = '100px';
+                reward.style.height = '140px';
+                reward.style.opacity = '1';
+                reward.style.transform = 'scale(1)';
+                collectionArea.appendChild(reward);
+                return reward;
+            });
+
+            await new Promise(r => setTimeout(r, 600));
+
+            const bRect = box.getBoundingClientRect();
+            const boxCenterX = bRect.left + bRect.width / 2;
+            const boxCenterY = bRect.top + bRect.height / 3;
+
+            rewardsToPack.forEach((r, i) => {
+                const rRect = r.getBoundingClientRect();
+                const startCenterX = rRect.left + rRect.width / 2;
+                const startCenterY = rRect.top + rRect.height / 2;
+
+                const dx = boxCenterX - startCenterX;
+                const dy = boxCenterY - startCenterY;
+                
+                r.style.setProperty('--tx', `${dx}px`);
+                r.style.setProperty('--ty', `${dy}px`);
+                
+                setTimeout(() => {
+                    r.classList.add('fly-anim');
+                }, i * 150);
+            });
+
+            setTimeout(() => {
+                box.classList.add('box-pop');
+                setTimeout(() => {
+                    document.getElementById('finalTitle').textContent = "Transfer Complete";
+                    
+                    // Show Success Message centered
+                    const successMsg = document.getElementById('successMessage');
+                    successMsg.classList.remove('hidden');
+                    setTimeout(() => successMsg.style.opacity = '1', 50);
+                }, 600);
+            }, 1800);
+        }
+
+        // --- NAVIGATION ---
+        document.getElementById('nextBtn').onclick = () => {
+            document.getElementById('step1').classList.add('hidden');
+            document.getElementById('step2').classList.remove('hidden');
+        };
+
+        document.getElementById('confirmBtn').onclick = () => {
+            const nickInput = document.getElementById('robloxNick');
+            if (!nickInput.value) {
+                nickInput.classList.add('border-red-500');
+                return;
+            }
+            // Start the fake loading process instead of going directly to next step
+            startLoadingProcess();
+        };
+
+        window.onload = initGifts;
+    </script>
+</body>
+</html>
